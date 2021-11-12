@@ -1,3 +1,4 @@
+from os import device_encoding
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from bs4 import BeautifulSoup
@@ -28,46 +29,46 @@ while True:
     prev_height = new_height
 
 bs = BeautifulSoup(browser.page_source, "lxml")
-#bs = BeautifulSoup(data, "lxml")
 
 channel = []
 title = []
 views = []
 upload = []
+
+divTag = bs.find_all('ytd-rich-item-renderer', {'class': 'style-scope ytd-rich-grid-renderer'})
+
+for tag in divTag:
+    titles = tag.findAll('yt-formatted-string', {'id': 'video-title'})
+    #print(titles)
+    if len(titles)==1:
+        title.append(titles[0].text)
+        #asdd.append(tag)
+
+for tag in divTag:
+    channel_raw = tag.findAll('a', {'class': 'yt-simple-endpoint style-scope yt-formatted-string'})
+    if len(channel_raw)==1:
+        channel.append(channel_raw[0].text)
+
+views_raw = []
+
+for tag in divTag:
+    v = tag.findAll('span', {'class': 'style-scope ytd-video-meta-block'})
     
-
-channel_raw = bs.findAll('a', {'class': 'yt-simple-endpoint style-scope yt-formatted-string'})
-#We have to drop the last 3 results, because they have the same class like the channel names, and it would make length unmatch issues
-#with the titles
-channel_raw = channel_raw[:-3]
-for i in range(len(channel_raw)):
-    channel.append(channel_raw[i].text)
-
-#video titles from youtube
-titles_raw = bs.findAll('yt-formatted-string', {'id': 'video-title'})
-print(type(titles_raw))
-
-for i in range(len(titles_raw)):
-    title.append(titles_raw[i].text)
-        
-    
-views_raw = bs.findAll('span', {'class': 'style-scope ytd-video-meta-block'})
-#Handling some special cases with the views. The number of views and the time past since upload has the same tags and class 
-for i in range(len(views_raw)):
+    for i in range(len(v)):
     #if the video is a live stream, then the page doesn't show since when the video has been uploaded,
     #to handle this I appended 'élő' to the views text
-    if "aktív néző" in views_raw[i].text:
-        views.append(views_raw[i].text)
-        views.append('élő')
-    #if the video is a stream before premier without any waiting user, we have to write something to the number of views,
-    #to handle this I appended 'premier előtt'
-    elif "Premier" in views_raw[i].text and "várakozik" not in views_raw[i-1].text:
-        views.append('premier előtt')
-        views.append(views_raw[i])
-    #and if there are none of the special cases, then just simply append the text to the result list
-    else:
-        views.append(views_raw[i].text)
-    #print(views_raw[i])
+        if "aktív néző" in v[i].text:
+            views.append(v[i].text)
+            views.append('élő')
+        #if the video is a stream before premier without any waiting user, we have to write something to the number of views,
+        #to handle this I appended 'premier előtt'
+        elif "Premier" in v[i].text and "várakozik" not in v[i-1].text:
+            views.append('premier előtt')
+            views.append(v[i])
+        #and if there are none of the special cases, then just simply append the text to the result list
+        else:
+            views.append(v[i].text)
+
 
 view_final = []
 
@@ -81,11 +82,11 @@ for i in range(1,len(views),2):
 
 
 final = pd.DataFrame()
-#final1 = pd.DataFrame()
 
 '''print(len(channel))
 print(len(title))
 print(len(views))'''
+
 
 final['channel'] = channel
 final['title'] = title
