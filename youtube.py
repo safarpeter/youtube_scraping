@@ -1,5 +1,4 @@
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from bs4 import BeautifulSoup
 import time
 import pandas as pd
@@ -75,7 +74,7 @@ view_final = []
 for i in range(0,len(views),2):
     view_final.append(views[i])
 
-#this loop gets the time past since upload
+#this loop gets the time has passed since upload
 for i in range(1,len(views),2):
     upload.append(views[i])
 
