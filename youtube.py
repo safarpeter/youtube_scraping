@@ -37,10 +37,10 @@ divTag = bs.find_all('ytd-rich-item-renderer', {'class': 'style-scope ytd-rich-g
 
 for tag in divTag:
     titles = tag.findAll('yt-formatted-string', {'id': 'video-title'})
-    #print(titles)
+    
     if len(titles)==1:
         title.append(titles[0].text)
-        #asdd.append(tag)
+        
 
 for tag in divTag:
     channel_raw = tag.findAll('a', {'class': 'yt-simple-endpoint style-scope yt-formatted-string'})
@@ -74,7 +74,7 @@ view_final = []
 for i in range(0,len(views),2):
     view_final.append(views[i])
 
-#this loop gets the time has passed since upload
+#this loop gets the amount of time has passed since upload
 for i in range(1,len(views),2):
     upload.append(views[i])
 
